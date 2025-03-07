@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+.App {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}

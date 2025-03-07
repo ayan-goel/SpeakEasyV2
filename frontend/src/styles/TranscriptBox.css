@@ -1,0 +1,21 @@
+.transcript-box {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.transcript-content {
+  min-height: 100px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+} 
