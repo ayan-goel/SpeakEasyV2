@@ -1,25 +1,82 @@
 .video-recorder {
   width: 100%;
-  margin: 20px 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-md);
+  background-color: #111827;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
 }
 
 .video-preview {
   width: 100%;
-  max-width: 640px;
-  height: auto;
-  border-radius: 8px;
-  background-color: #000;
+  height: 100%;
+  object-fit: cover; /* This ensures video fills the container */
+  border-radius: var(--radius-md);
+  transform: scaleX(-1); /* This inverts the video horizontally */
+  transition: box-shadow 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.video-preview:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .recording-controls {
-  margin-top: 10px;
+  display: none; /* Hide the original controls since we're moving them to the right panel */
 }
 
-.recording-controls button {
-  padding: 8px 16px;
-  background-color: #dc3545;
+.recording-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.recording-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--danger-color);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.countdown {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: 700;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 10;
 } 

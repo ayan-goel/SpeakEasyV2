@@ -1,78 +1,129 @@
 import React, { useRef, useEffect, useState } from 'react';
 import '../styles/VideoRecorder.css';
 
-const VideoRecorder = ({ onTranscriptUpdate }) => {
+const VideoRecorder = ({ isRecording }) => {
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [stream, setStream] = useState(null);
-
+  const [countdown, setCountdown] = useState(null);
+  
   useEffect(() => {
-    initializeMedia();
+    // Get permission and set up video feed when component mounts
+    const setupVideo = async () => {
+      try {
+        // Request high-quality video with preferred aspect ratio
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            facingMode: "user"
+          }, 
+          audio: true 
+        });
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+        }
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+      }
+    };
+    
+    setupVideo();
+    
+    // Cleanup when component unmounts
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
-
-  const initializeMedia = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
+  
+  useEffect(() => {
+    // Handle starting/stopping recording based on isRecording prop
+    if (isRecording) {
+      startCountdown();
+    } else {
+      stopRecording();
+    }
+  }, [isRecording]);
+  
+  const startCountdown = () => {
+    setCountdown(3);
+    
+    const countdownInterval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          startRecording();
+          return null;
+        }
+        return prev - 1;
       });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      console.error('Error accessing media devices:', err);
-    }
+    }, 1000);
   };
-
+  
   const startRecording = () => {
-    if (stream) {
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
+    if (!streamRef.current) return;
+    
+    try {
+      const recorder = new MediaRecorder(streamRef.current, {
+        mimeType: 'video/webm;codecs=vp9,opus'
+      });
+      const chunks = [];
       
-      mediaRecorder.ondataavailable = handleDataAvailable;
-      mediaRecorder.start();
-      setIsRecording(true);
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+      
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        // Do something with the recorded video blob
+        // e.g., save it, upload it, or play it back
+      };
+      
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+    } catch (err) {
+      console.error("Error starting recording:", err);
+      // Fallback to a more compatible format if vp9 isn't supported
+      try {
+        const recorder = new MediaRecorder(streamRef.current);
+        mediaRecorderRef.current = recorder;
+        recorder.start();
+      } catch (fallbackErr) {
+        console.error("Fallback recording failed:", fallbackErr);
+      }
     }
   };
-
+  
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
     }
   };
-
-  const handleDataAvailable = (event) => {
-    if (event.data.size > 0) {
-      // Here you would typically send the video data to your backend
-      // For now, we'll just create a URL for preview
-      const videoUrl = URL.createObjectURL(event.data);
-      console.log('Recording saved:', videoUrl);
-    }
-  };
-
+  
   return (
     <div className="video-recorder">
-      <video 
-        ref={videoRef} 
-        autoPlay 
-        muted 
-        playsInline
-        className="video-preview"
-      />
-      <div className="recording-controls">
-        {!isRecording ? (
-          <button onClick={startRecording}>Start Recording</button>
-        ) : (
-          <button onClick={stopRecording}>Stop Recording</button>
+      <div className="video-container">
+        {countdown && (
+          <div className="countdown">{countdown}</div>
         )}
+        <video 
+          ref={videoRef} 
+          className="video-preview" 
+          autoPlay 
+          playsInline 
+          muted
+        />
+      </div>
+      
+      {/* Original controls are hidden via CSS */}
+      <div className="recording-controls" style={{ display: 'none' }}>
+        <button>Record</button>
       </div>
     </div>
   );

@@ -1,29 +1,62 @@
 .timer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0;
+  width: 100%;
 }
 
 .time-display {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin: 0.25rem 0;
+  letter-spacing: -0.025em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .timer-controls {
-  display: flex;
-  gap: 10px;
+  display: none; /* Hide original controls as they will be in the right panel */
 }
 
+/* Original button styles left intact for reference but won't be displayed */
 .timer-controls button {
-  padding: 8px 16px;
-  background-color: #007bff;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s;
+  min-width: 80px;
+  box-shadow: var(--shadow-sm);
 }
 
 .timer-controls button:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-hover);
+}
+
+.timer-controls button:active {
+  transform: scale(0.98);
+}
+
+.timer-controls button:disabled {
+  background-color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.timer-controls button:last-child {
+  background-color: var(--secondary-color);
+}
+
+.timer-controls button:last-child:hover {
+  background-color: var(--secondary-hover);
 } 
